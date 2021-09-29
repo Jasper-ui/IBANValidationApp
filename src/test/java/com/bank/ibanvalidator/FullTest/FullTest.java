@@ -19,10 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {"spring.datasource.url=jdbc:sqlite:test.db"})
@@ -31,11 +28,9 @@ public class FullTest {
 
   @Autowired private TestRestTemplate restTemplate;
 
-  @Autowired
-  private IBANRepository repository;
+  @Autowired private IBANRepository repository;
 
-  @Autowired
-  private IBANService service;
+  @Autowired private IBANService service;
 
   @Test
   public void fullTest() {
@@ -53,33 +48,36 @@ public class FullTest {
     IBANValidationResponse actualResponse =
         submitPostRequest(request, IBANValidationResponse.class);
 
-    Assertions.assertEquals(expectedResponse.getNumberOfValidIBANs(), actualResponse.getNumberOfValidIBANs());
+    Assertions.assertEquals(
+        expectedResponse.getNumberOfValidIBANs(), actualResponse.getNumberOfValidIBANs());
     Assertions.assertEquals(expectedResponse.getNumberOfIBANs(), actualResponse.getNumberOfIBANs());
 
-    List<IBAN> recievedInvalid = submitGetRequest(IBANFilter.INVALID);
-    List<IBAN> recievedValid = submitGetRequest(IBANFilter.VALID);
-    List<IBAN> recievedAll = submitGetRequest(IBANFilter.ALL);
+    HashMap<String, Boolean> recievedInvalid = submitGetRequest(IBANFilter.INVALID);
+    HashMap<String, Boolean> recievedValid = submitGetRequest(IBANFilter.VALID);
+    HashMap<String, Boolean> recievedAll = submitGetRequest(IBANFilter.ALL);
 
-    Assertions.assertEquals(listOfIbans.get(2).getIbanNumber(), recievedValid.get(0).getIbanNumber());
-    Assertions.assertEquals(listOfIbans.get(2).isValid(), recievedValid.get(0).isValid());
+    Assertions.assertEquals(
+        listOfIbans.get(2).isValid(), recievedValid.get(listOfIbans.get(2).getIbanNumber()));
 
-    Assertions.assertEquals(listOfIbans.get(0).getIbanNumber(), recievedInvalid.get(0).getIbanNumber());
-    Assertions.assertEquals(listOfIbans.get(0).isValid(), recievedInvalid.get(0).isValid());
+    Assertions.assertEquals(
+            listOfIbans.get(1).isValid(), recievedInvalid.get(listOfIbans.get(1).getIbanNumber()));
 
-    Assertions.assertEquals(listOfIbans.get(1).getIbanNumber(), recievedInvalid.get(1).getIbanNumber());
-    Assertions.assertEquals(listOfIbans.get(1).isValid(), recievedInvalid.get(1).isValid());
+    Assertions.assertEquals(
+            listOfIbans.get(0).isValid(), recievedInvalid.get(listOfIbans.get(0).getIbanNumber()));
 
-
-    for (int i =0; i< input.size();i++)
-    {
-      Assertions.assertEquals(listOfIbans.get(i).getIbanNumber(), recievedAll.get(i).getIbanNumber());
-      Assertions.assertEquals(listOfIbans.get(i).isValid(), recievedAll.get(i).isValid());
-      Assertions.assertEquals(expectedResponse.getListOfIBANs().get(i).getIbanNumber(), actualResponse.getListOfIBANs().get(i).getIbanNumber());
-      Assertions.assertEquals(expectedResponse.getListOfIBANs().get(i).isValid(), actualResponse.getListOfIBANs().get(i).isValid());
-      Assertions.assertTrue(repository.existsByIbanNumber(actualResponse.getListOfIBANs().get(i).getIbanNumber()));
+    for (int i = 0; i < input.size(); i++) {
+      Assertions.assertEquals(
+              listOfIbans.get(i).isValid(), recievedAll.get(listOfIbans.get(i).getIbanNumber()));
+      Assertions.assertEquals(
+          expectedResponse.getListOfIBANs().get(i).getIbanNumber(),
+          actualResponse.getListOfIBANs().get(i).getIbanNumber());
+      Assertions.assertEquals(
+          expectedResponse.getListOfIBANs().get(i).isValid(),
+          actualResponse.getListOfIBANs().get(i).isValid());
+      Assertions.assertTrue(
+          repository.existsByIbanNumber(actualResponse.getListOfIBANs().get(i).getIbanNumber()));
       repository.delete(actualResponse.getListOfIBANs().get(i));
     }
-
   }
 
   public <T> T submitPostRequest(IBANValidationRequest requestTicket, Class<T> className) {
@@ -93,17 +91,22 @@ public class FullTest {
         .getBody();
   }
 
-  public List<IBAN> submitGetRequest(IBANFilter filter) {
+  public HashMap<String, Boolean> submitGetRequest(IBANFilter filter) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
-    UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:" + port + "/numbers")
+    UriComponentsBuilder builder =
+        UriComponentsBuilder.fromHttpUrl("http://localhost:" + port + "/numbers")
             .queryParam("filter", filter);
 
     HttpEntity<?> request = new HttpEntity<>(headers);
 
-    return Arrays.asList(Objects.requireNonNull(this.restTemplate.exchange(builder.toUriString(), HttpMethod.GET, request, IBAN[].class).getBody()));
+    Map<String, Boolean> values = new HashMap<>();
 
+
+    return this.restTemplate
+                    .exchange(builder.toUriString(), HttpMethod.GET, request, HashMap.class)
+                    .getBody();
   }
         }
 
