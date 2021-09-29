@@ -101,9 +101,6 @@ public class FullTest {
 
     HttpEntity<?> request = new HttpEntity<>(headers);
 
-    Map<String, Boolean> values = new HashMap<>();
-
-
     return this.restTemplate
                     .exchange(builder.toUriString(), HttpMethod.GET, request, HashMap.class)
                     .getBody();
