@@ -1,4 +1,4 @@
-# DraftTicketApplication
+# IBAN Validator application
 
 ### Running the application
 
