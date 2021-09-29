@@ -3,7 +3,6 @@ package com.bank.ibanvalidator.controllers;
 import com.bank.ibanvalidator.controllers.requests.IBANFilter;
 import com.bank.ibanvalidator.controllers.requests.IBANValidationRequest;
 import com.bank.ibanvalidator.controllers.responses.IBANValidationResponse;
-import com.bank.ibanvalidator.entites.IBAN;
 import com.bank.ibanvalidator.interfaces.IBANService;
 import com.bank.ibanvalidator.interfaces.IBANValidationService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
-
+import java.util.HashMap;
 
 @Slf4j
 @RestController
@@ -35,7 +33,7 @@ public class IBANController {
 
     @GetMapping("/numbers")
     @ResponseBody
-    public List<IBAN> getIBANHistory(@RequestParam IBANFilter filter) {
+    public HashMap<String, Boolean> getIBANHistory(@RequestParam IBANFilter filter) {
         log.debug("IBAN Validations request with id received. Calling IBAN Retrieval service");
         return ibanService.retrieveIBANs(filter);
     }

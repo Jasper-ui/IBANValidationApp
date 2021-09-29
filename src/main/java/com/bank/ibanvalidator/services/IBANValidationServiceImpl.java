@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -61,7 +62,7 @@ public class IBANValidationServiceImpl implements IBANValidationService, IBANSer
   }
 
   @Override
-  public List<IBAN> retrieveIBANs(IBANFilter filter) {
+  public HashMap<String, Boolean> retrieveIBANs(IBANFilter filter) {
     if (filter == IBANFilter.VALID) {
       return repository.readAllValidIBAN();
     } else if (filter == IBANFilter.INVALID) {

@@ -1,10 +1,9 @@
 package com.bank.ibanvalidator.interfaces;
 
 import com.bank.ibanvalidator.controllers.requests.IBANFilter;
-import com.bank.ibanvalidator.entites.IBAN;
 
-import java.util.List;
+import java.util.HashMap;
 
 public interface IBANService {
-    List<IBAN> retrieveIBANs(IBANFilter filter);
+    HashMap<String,Boolean> retrieveIBANs(IBANFilter filter);
 }
